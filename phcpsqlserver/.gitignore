@@ -1,0 +1,13 @@
+# ignore build directories which aren't needed
+bin/
+obj/
+
+# ignore sensitive information
+appsettings.json
+appsettings.Development.json
+
+# needed for ycm
+empty.sln
+
+# misc unuseful files
+*.txt

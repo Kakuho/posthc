@@ -1,0 +1,6 @@
+@phcpsqlserver_HostAddress = http://localhost:5082
+
+GET {{phcpsqlserver_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
