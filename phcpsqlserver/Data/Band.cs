@@ -12,5 +12,9 @@ namespace Phc.Data
         public DateTime AddedOn { get; set; }
         [DataType(DataType.Date)]
         public DateTime LastModified { get; set; }
+        /*
+        public ICollection<Musician> PastMembers{get; set;}
+        public ICollection<Musician> CurrentMembers{get; set;}
+        */
     }
 }

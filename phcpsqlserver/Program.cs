@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Phc.Data;
+using Phc.Service.Interface;
+using Phc.Service;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +12,7 @@ builder.Services.AddDbContext<PhcContext>(
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddScoped<IBandService, BandService>();
 
 var app = builder.Build();
 

@@ -13,19 +13,19 @@ namespace phcpsqlserver.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Bands",
+                name: "bands",
                 columns: table => new
                 {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
+                    band_id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Name = table.Column<string>(type: "text", nullable: false),
-                    Formed = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    AddedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    LastModified = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    name = table.Column<string>(type: "text", nullable: false),
+                    formed = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    added_on = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    last_modified = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Bands", x => x.Id);
+                    table.PrimaryKey("PK_bands", x => x.band_id);
                 });
         }
 
@@ -33,7 +33,7 @@ namespace phcpsqlserver.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Bands");
+                name: "bands");
         }
     }
 }
