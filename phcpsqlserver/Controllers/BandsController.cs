@@ -14,8 +14,8 @@ namespace Phc.Controllers
 
         public BandsController(PhcContext context, IBandService bandservice)
         {
-          _context = context;
-          _bandservice = bandservice;
+            _context = context;
+            _bandservice = bandservice;
         }
 
         [HttpGet("test")]
@@ -27,19 +27,22 @@ namespace Phc.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Band>> GetBandById(long id)
         {
-          Band b = await _bandservice.GetBandByIdAsync(id);
-          if(b is null){
-            return new BadRequestResult();
-          }
-          else{
-            return Ok(b);
-          }
+            Band b = await _bandservice.GetBandByIdAsync(id);
+            if (b is null)
+            {
+                return new BadRequestResult();
+            }
+            else
+            {
+                return Ok(b);
+            }
         }
 
         [HttpPost]
-        public async Task<ActionResult<Band>> PostBand(BandDto b){
-          Band saved = _bandservice.AddBand(b);
-          return new CreatedAtActionResult(nameof(PostBand), "Bands", new {id = saved.Id}, saved);
+        public async Task<ActionResult<Band>> PostBand(BandDto b)
+        {
+            Band saved = _bandservice.AddBand(b);
+            return new CreatedAtActionResult(nameof(PostBand), "Bands", new { id = saved.Id }, saved);
         }
     }
 }
