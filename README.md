@@ -6,7 +6,7 @@ NOTE: The schema may change to conform to denormalisation forms in the future.
 
 The database schema was made using dbdiagram.io.
 
-![alt text](./assets/posthardcore.png)
+![alt text](./assets/posthardcore2.0.png)
 
 The following enums are used in the schema:
 
@@ -20,7 +20,7 @@ enum phc.statusValues{
 }
 ```
 
-```phc.band_position``` represent the position that each band member can be, and is used in the relation ```phc.musicians```.
+```phc.band_position``` represent the position that each band member play, and is used in the relation ```phc.musicians```.
 
 ```
 enum phc.band_position{
