@@ -6,6 +6,7 @@ namespace Phc.Data
     public sealed class PhcContext : DbContext
     {
         public DbSet<Band> Bands { get; set; }
+        public DbSet<Album> Albums { get; set; }
         public PhcContext(DbContextOptions<PhcContext> options)
             : base(options)
         {
@@ -30,10 +31,11 @@ namespace Phc.Data
 
         void SetBandColumnNames(ModelBuilder modelBuilder)
         {
+            // configure relation band
+
             modelBuilder.Entity<Band>()
               .Property(b => b.Id)
               .HasColumnName("band_id");
-
 
             modelBuilder.Entity<Band>()
               .Property(b => b.Name)
@@ -43,11 +45,9 @@ namespace Phc.Data
               .Property(b => b.Formed)
               .HasColumnName("formed");
 
-
             modelBuilder.Entity<Band>()
               .Property(b => b.AddedOn)
               .HasColumnName("added_on");
-
 
             modelBuilder.Entity<Band>()
               .Property(b => b.LastModified)
@@ -56,14 +56,28 @@ namespace Phc.Data
             modelBuilder.Entity<Band>()
               .ToTable("bands");
 
+            // configure relation albums
+
+            modelBuilder.Entity<Album>()
+              .Property(a => a.Id)
+              .HasColumnName("album_id");
+
+            modelBuilder.Entity<Album>()
+              .Property(a => a.Name)
+              .HasColumnName("name");
+
+            modelBuilder.Entity<Album>()
+              .Property(a => a.Runtime)
+              .HasColumnName("formed");
+
+            modelBuilder.Entity<Album>()
+              .ToTable("albums");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             SetBandColumnNames(modelBuilder);
             //SetBandTypes(modelBuilder);
-            modelBuilder.Entity<Band>()
-              .ToTable("bands");
         }
     }
 }

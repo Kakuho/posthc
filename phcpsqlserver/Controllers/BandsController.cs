@@ -18,10 +18,18 @@ namespace Phc.Controllers
             _bandservice = bandservice;
         }
 
-        [HttpGet("test")]
-        public string TestString()
+        [HttpGet()]
+        public async Task<ActionResult<List<Band>>> GetAllBands()
         {
-            return "ayo here is some string";
+            List<Band> allbands = await _bandservice.GetAllBands();
+            if (allbands is null)
+            {
+                return new BadRequestResult();
+            }
+            else
+            {
+                return Ok(allbands);
+            }
         }
 
         [HttpGet("{id}")]
@@ -36,13 +44,37 @@ namespace Phc.Controllers
             {
                 return Ok(b);
             }
+
+
         }
 
         [HttpPost]
-        public async Task<ActionResult<Band>> PostBand(BandDto b)
+        public async Task<ActionResult<Band>> PostBand(BandDto band)
         {
-            Band saved = _bandservice.AddBand(b);
+            Band saved = _bandservice.AddBand(band);
             return new CreatedAtActionResult(nameof(PostBand), "Bands", new { id = saved.Id }, saved);
+        }
+
+
+
+        [HttpDelete]
+        public async Task<ActionResult<bool>> PostBand(string bandname)
+        {
+            bool deleted = await _bandservice.DeleteBand(bandname);
+            if (deleted)
+            {
+                return Ok(true);
+            }
+            else
+            {
+                return Ok(false);
+            }
+        }
+
+        [HttpGet("working")]
+        public async Task<ActionResult<Band>> doingsomething()
+        {
+            return Ok();
         }
     }
 }

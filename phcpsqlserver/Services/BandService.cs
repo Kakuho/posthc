@@ -1,6 +1,7 @@
 using Phc.Data;
 using Phc.Data.Dto;
 using Phc.Service.Interface;
+using Microsoft.EntityFrameworkCore;
 
 namespace Phc.Service
 {
@@ -17,6 +18,26 @@ namespace Phc.Service
         {
             Band b = _context.Bands.SingleOrDefault(b => b.Id == id);
             return b;
+        }
+
+        public async Task<Band> GetBandByNameAsync(string name)
+        {
+            try{
+              Band b = _context.Bands.SingleOrDefault(b => b.Name == name);
+              if(b is null){
+                // throw a guy
+              }
+              return b;
+            }
+            catch{
+              return null;
+            }
+        }
+
+
+        public Task<List<Band>> GetAllBands()
+        {
+            return _context.Bands.ToListAsync();
         }
 
         public Band AddBand(Band band)
@@ -38,7 +59,7 @@ namespace Phc.Service
         {
             Band saveBand = new Band()
             {
-                Id = 0,
+                Id = 0, // this does not matter
                 Name = band.Name,
                 Formed = DateTime.SpecifyKind(band.Formed, DateTimeKind.Utc),
                 AddedOn = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc),
@@ -47,6 +68,21 @@ namespace Phc.Service
             _context.Bands.Add(saveBand);
             _context.SaveChanges();
             return saveBand;
+        }
+
+        public async Task<bool> DeleteBand(string name)
+        {
+            Band band = await _context.Bands.FirstAsync(b => b.Name == name);
+            if (band is null)
+            {
+                return false;
+            }
+            else
+            {
+                _context.Bands.Remove(band);
+                _context.SaveChanges();
+                return true;
+            }
         }
     }
 }
