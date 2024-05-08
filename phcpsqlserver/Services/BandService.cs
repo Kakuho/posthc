@@ -23,11 +23,13 @@ namespace Phc.Service
         public async Task<Band> GetBandByNameAsync(string name)
         {
             try{
-              Band b = _context.Bands.SingleOrDefault(b => b.Name == name);
-              if(b is null){
+              Console.WriteLine(name);
+              Band output = await _context.Bands
+                  .FirstOrDefaultAsync(b => b.Name == name);
+              if(output is null){
                 // throw a guy
               }
-              return b;
+              return output;
             }
             catch{
               return null;

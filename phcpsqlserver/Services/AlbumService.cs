@@ -34,6 +34,8 @@ namespace Phc.Service
             return album;
         }
 
+        // this code is creating a circular reference
+        // album -> band -
         public async Task<Album> AddAlbum(AlbumDto album)
         {
             Album saveAlbum = new Album()
@@ -44,15 +46,22 @@ namespace Phc.Service
                 AddedOn = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc),
             };
             if(album.BandName is not null){
+              Console.ForegroundColor = ConsoleColor.Yellow;
+              Console.WriteLine(album.BandName);
               Band band = await _bandservice.GetBandByNameAsync(album.BandName);
               if(band is null){
-                // throw an error
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine("ERROR CANNOT FIND");
               }
               else{
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine("band is not null");
                 saveAlbum.bandId = band.Id;
                 saveAlbum.Band = band;
               }
             }
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine("we outside");
             _context.Albums.Add(saveAlbum);
             _context.SaveChanges();
             return saveAlbum;
@@ -60,7 +69,7 @@ namespace Phc.Service
 
         public async Task<bool> DeleteAlbum(string name)
         {
-            Album album = await _context.Albums.FirstAsync(a => a.Name == name);
+            Album album = await _context.Albums.FirstOrDefaultAsync(a => a.Name == name);
             if (album is null)
             {
                 return false;
@@ -70,6 +79,22 @@ namespace Phc.Service
                 _context.Albums.Remove(album);
                 _context.SaveChanges();
                 return true;
+            }
+        }
+
+        public async Task<List<Album>> GetAlbumsFromBand(string BandName)
+        {
+            if (BandName is null)
+            {
+                return null;
+            }
+            else
+            {
+                var albums = 
+                  await _context.Albums
+                  .Where(a=> a.Band.Name == BandName)
+                  .ToListAsync();
+                return albums;
             }
         }
     }

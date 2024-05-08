@@ -32,6 +32,7 @@ namespace Phc.Controllers
             }
         }
 
+        /*
         [HttpGet("{id}")]
         public async Task<ActionResult<Band>> GetBandById(long id)
         {
@@ -44,8 +45,21 @@ namespace Phc.Controllers
             {
                 return Ok(b);
             }
+        }
+        */
 
-
+        [HttpGet("{BandName}")]
+        public async Task<ActionResult<Band>> GetBandById(string BandName)
+        {
+            Band b = await _bandservice.GetBandByNameAsync(BandName);
+            if (b is null)
+            {
+                return new BadRequestResult();
+            }
+            else
+            {
+                return Ok(b);
+            }
         }
 
         [HttpPost]

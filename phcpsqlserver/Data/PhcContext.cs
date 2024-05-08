@@ -68,7 +68,15 @@ namespace Phc.Data
 
             modelBuilder.Entity<Album>()
               .Property(a => a.Runtime)
-              .HasColumnName("formed");
+              .HasColumnName("runtime");
+
+            modelBuilder.Entity<Album>()
+              .Property(a => a.AddedOn)
+              .HasColumnName("added_on");
+
+            modelBuilder.Entity<Album>()
+              .Property(a => a.bandId)
+              .HasColumnName("band_id");
 
             modelBuilder.Entity<Album>()
               .ToTable("albums");

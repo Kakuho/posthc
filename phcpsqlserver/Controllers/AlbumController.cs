@@ -44,7 +44,6 @@ namespace Phc.Controllers
             {
                 return Ok(a);
             }
-
         }
 
         [HttpPost]
@@ -66,12 +65,6 @@ namespace Phc.Controllers
             {
                 return Ok(false);
             }
-        }
-
-        [HttpGet("working")]
-        public async Task<ActionResult<Album>> doingsomething()
-        {
-            return Ok();
         }
     }
 }

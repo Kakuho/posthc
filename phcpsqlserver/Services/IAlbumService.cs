@@ -10,5 +10,6 @@ namespace Phc.Service.Interface
         public Album AddAlbum(Album album);
         public Task<Album> AddAlbum(AlbumDto album);
         public Task<bool> DeleteAlbum(string name);
+        public Task<List<Album>> GetAlbumsFromBand(string BandName);
     }
 }
