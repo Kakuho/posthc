@@ -7,6 +7,8 @@ namespace Phc.Data
     {
         public DbSet<Band> Bands { get; set; }
         public DbSet<Album> Albums { get; set; }
+        public DbSet<Playlist> Playlists { get; set; }
+
         public PhcContext(DbContextOptions<PhcContext> options)
             : base(options)
         {
@@ -80,6 +82,38 @@ namespace Phc.Data
 
             modelBuilder.Entity<Album>()
               .ToTable("albums");
+
+            // configure relation PlaylistAlbums
+
+            modelBuilder.Entity<Playlist>()
+              .Property(p => p.Id)
+              .HasColumnName("playlist_id");
+
+            modelBuilder.Entity<Playlist>()
+              .Property(p => p.Name)
+              .HasColumnName("name");
+
+            modelBuilder.Entity<Playlist>()
+              .Property(p => p.Runtime)
+              .HasColumnName("runtime");
+
+            modelBuilder.Entity<Playlist>()
+              .Property(p => p.AddedOn)
+              .HasColumnName("added_on");
+
+
+            modelBuilder.Entity<Playlist>()
+              .ToTable("playlist");
+
+            // configure the join entity for playlist and album
+
+            modelBuilder.Entity<Playlist>()
+              .HasMany(p => p.Albums)
+              .WithMany(a => a.Playlists)
+              .UsingEntity<JoinPlaylistAlbum>();
+
+            modelBuilder.Entity<JoinPlaylistAlbum>()
+              .ToTable("playlist_album_mapping");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

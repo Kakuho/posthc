@@ -16,26 +16,19 @@ namespace Phc.Service
 
         public async Task<Band> GetBandByIdAsync(long id)
         {
-            Band b = _context.Bands.SingleOrDefault(b => b.Id == id);
+            Band b = await _context.Bands
+                        .SingleOrDefaultAsync(b => b.Id == id)
+                        ?? throw new ArgumentNullException("null band");
             return b;
         }
 
         public async Task<Band> GetBandByNameAsync(string name)
         {
-            try{
-              Console.WriteLine(name);
-              Band output = await _context.Bands
-                  .FirstOrDefaultAsync(b => b.Name == name);
-              if(output is null){
-                // throw a guy
-              }
-              return output;
-            }
-            catch{
-              return null;
-            }
+            Band output = await _context.Bands
+                            .FirstOrDefaultAsync(b => b.Name == name)
+                            ?? throw new ArgumentNullException("null band");
+            return output;
         }
-
 
         public Task<List<Band>> GetAllBands()
         {

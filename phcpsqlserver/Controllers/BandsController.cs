@@ -63,13 +63,11 @@ namespace Phc.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Band>> PostBand(BandDto band)
+        public ActionResult<Band> PostBand(BandDto band)
         {
             Band saved = _bandservice.AddBand(band);
             return new CreatedAtActionResult(nameof(PostBand), "Bands", new { id = saved.Id }, saved);
         }
-
-
 
         [HttpDelete]
         public async Task<ActionResult<bool>> PostBand(string bandname)
@@ -83,12 +81,6 @@ namespace Phc.Controllers
             {
                 return Ok(false);
             }
-        }
-
-        [HttpGet("working")]
-        public async Task<ActionResult<Band>> doingsomething()
-        {
-            return Ok();
         }
     }
 }

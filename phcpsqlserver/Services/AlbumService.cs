@@ -18,13 +18,15 @@ namespace Phc.Service
 
         public async Task<Album> GetAlbumByIdAsync(long id)
         {
-            Album a = _context.Albums.SingleOrDefault(a => a.Id == id);
+            Album a = await _context.Albums
+                        .SingleOrDefaultAsync(a => a.Id == id) 
+                        ?? throw new ArgumentNullException("Band is null");
             return a;
         }
 
-        public Task<List<Album>> GetAllAlbums()
+        public async Task<List<Album>> GetAllAlbums()
         {
-            return _context.Albums.ToListAsync();
+            return await _context.Albums.ToListAsync();
         }
 
         public Album AddAlbum(Album album)
@@ -69,32 +71,25 @@ namespace Phc.Service
 
         public async Task<bool> DeleteAlbum(string name)
         {
-            Album album = await _context.Albums.FirstOrDefaultAsync(a => a.Name == name);
-            if (album is null)
-            {
-                return false;
-            }
-            else
-            {
-                _context.Albums.Remove(album);
-                _context.SaveChanges();
-                return true;
-            }
+            Album album = await _context.Albums
+                            .FirstOrDefaultAsync(a => a.Name == name) 
+                            ?? throw new ArgumentNullException("Album Name look up returned null");
+            _context.Albums.Remove(album);
+            _context.SaveChanges();
+            return true;
         }
 
-        public async Task<List<Album>> GetAlbumsFromBand(string BandName)
+        public async Task<List<Album>> GetAlbumsFromBand(string? BandName)
         {
-            if (BandName is null)
-            {
-                return null;
+            if(BandName is not null){
+              var albums = await _context.Albums
+                            .Where(a => a.Band.Name == BandName)
+                            .ToListAsync() 
+                            ?? throw new ArgumentNullException("there are no albums for that band");
+              return albums;
             }
-            else
-            {
-                var albums = 
-                  await _context.Albums
-                  .Where(a=> a.Band.Name == BandName)
-                  .ToListAsync();
-                return albums;
+            else{
+              throw new ArgumentNullException("Bandname is null");
             }
         }
     }

@@ -18,17 +18,26 @@ namespace Phc.Controllers
             _albumservice = albumservice;
         }
 
+        // probably make this async
         [HttpGet()]
-        public async Task<ActionResult<List<Album>>> GetAllAlbums()
+        public async Task<ActionResult<List<Album>>> GetAlbums(string? bandname)
         {
-            List<Album> allalbums = await _albumservice.GetAllAlbums();
-            if (allalbums is null)
+            List<Album> albumlist;
+            if (bandname is not null)
             {
-                return new BadRequestResult();
+              albumlist = await _albumservice.GetAlbumsFromBand(bandname);
             }
             else
             {
-                return Ok(allalbums);
+              albumlist = await _albumservice.GetAllAlbums();
+            }
+            if (albumlist is not null)
+            {
+                return Ok(albumlist);
+            }
+            else
+            {
+                return new BadRequestResult();
             }
         }
 
@@ -53,7 +62,7 @@ namespace Phc.Controllers
             return new CreatedAtActionResult(nameof(PostAlbum), "Albums", new { id = saved.Id }, saved);
         }
 
-        [HttpDelete]
+        [HttpDelete("{id}")]
         public async Task<ActionResult<bool>> DeleteAlbum(string albumname)
         {
             bool deleted = await _albumservice.DeleteAlbum(albumname);
@@ -66,5 +75,12 @@ namespace Phc.Controllers
                 return Ok(false);
             }
         }
+
+        [HttpPut("{id}")]
+        public ActionResult<string> PutAlbum(int id)
+        {
+          return Ok("I Aint Implemented yet!");
+        }
+
     }
 }
