@@ -1,8 +1,9 @@
 using Phc.Data;
 using Phc.Data.Dto;
 using Phc.Service.Interface;
+using Phc.Utilities;
 using Microsoft.EntityFrameworkCore;
-
+  
 namespace Phc.Service
 {
     public class AlbumService : IAlbumService
@@ -36,34 +37,71 @@ namespace Phc.Service
             return album;
         }
 
+        /*
         // this code is creating a circular reference
         // album -> band -
         public async Task<Album> AddAlbum(AlbumDto album)
         {
+            // first check if the band is in the db
+            Band band = await _bandservice.GetBandByNameAsync(album.BandName);
+            if(band is null){
+                return null;
+            }
+            // now we populate the db
             Album saveAlbum = new Album()
             {
-                Id = 0, // this does not matter
                 Name = album.Name,
+                Band = band,
                 Runtime = album.Runtime,
                 AddedOn = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc),
             };
-            if(album.BandName is not null){
-              Console.ForegroundColor = ConsoleColor.Yellow;
-              Console.WriteLine(album.BandName);
-              Band band = await _bandservice.GetBandByNameAsync(album.BandName);
-              if(band is null){
-                Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.WriteLine("ERROR CANNOT FIND");
-              }
-              else{
-                Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.WriteLine("band is not null");
-                saveAlbum.bandId = band.Id;
-                saveAlbum.Band = band;
-              }
+            _context.Albums.Add(saveAlbum);
+            _context.SaveChanges();
+            return saveAlbum;
+        }
+        */
+
+        public async Task<Album> AddAlbum/*Sanitised*/(AlbumDto album)
+        {
+            // first check if the band is in the db
+           
+            bool bandExists = false;
+            CancellationTokenSource bandSource = new CancellationTokenSource();
+            CancellationToken token = bandSource.Token;
+            await _context.Bands.ForEachAsync(b => {
+                if(StringSanitiser.Compare(b.Name, album.BandName)) {
+                    Console.WriteLine("yes");
+                    bandExists = true;
+                    bandSource.Cancel();
+                }
+            }, token);
+
+            // check to see if the album is already in the db
+            
+            bool albumExists = false;
+            CancellationTokenSource albumSource = new CancellationTokenSource();
+            token = albumSource.Token;
+            await _context.Albums.ForEachAsync(a => {
+                if(StringSanitiser.Compare(a.Name, album.Name)){
+                    albumExists = true;
+                    albumSource.Cancel();
+                }
+            }, token);
+
+            if(albumExists || !bandExists){
+                throw new InvalidOperationException();
             }
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine("we outside");
+
+            // passes tests, so we populate the db
+
+            Band band = await _bandservice.GetBandByNameAsync(album.BandName);
+            Album saveAlbum = new Album()
+            {
+                Name = album.Name,
+                Band = band,
+                Runtime = album.Runtime,
+                AddedOn = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc),
+            };
             _context.Albums.Add(saveAlbum);
             _context.SaveChanges();
             return saveAlbum;
