@@ -20,21 +20,7 @@ namespace Phc.Data
 
         }
 
-        /*
-        void SetBandTypes(ModelBuilder modelBuilder){
-          modelBuilder.Entity<Band>(
-              entitybuilder => {
-                  entitybuilder.Property(b => b.Id).HasColumnType("");
-                  entitybuilder.Property(b => b.Rating).HasColumnType("decimal(5, 2)");
-              }
-          );
-        }
-        */
-
-        void SetBandColumnNames(ModelBuilder modelBuilder)
-        {
-            // configure relation band
-
+        void MapBandColumns(ModelBuilder modelBuilder){
             modelBuilder.Entity<Band>()
               .Property(b => b.Id)
               .HasColumnName("band_id");
@@ -57,9 +43,9 @@ namespace Phc.Data
 
             modelBuilder.Entity<Band>()
               .ToTable("bands");
+        }
 
-            // configure relation albums
-
+        void MapAlbumColumns(ModelBuilder modelBuilder){
             modelBuilder.Entity<Album>()
               .Property(a => a.Id)
               .HasColumnName("album_id");
@@ -73,8 +59,16 @@ namespace Phc.Data
               .HasColumnName("runtime");
 
             modelBuilder.Entity<Album>()
+              .Property(a => a.Genre)
+              .HasColumnName("genre");
+
+            modelBuilder.Entity<Album>()
               .Property(a => a.AddedOn)
               .HasColumnName("added_on");
+
+            modelBuilder.Entity<Album>()
+              .Property(a => a.LastUpdated)
+              .HasColumnName("last_updated");
 
             modelBuilder.Entity<Album>()
               .Property(a => a.bandId)
@@ -82,9 +76,9 @@ namespace Phc.Data
 
             modelBuilder.Entity<Album>()
               .ToTable("albums");
+        }
 
-            // configure relation PlaylistAlbums
-
+        void MapPlaylistColumns(ModelBuilder modelBuilder){
             modelBuilder.Entity<Playlist>()
               .Property(p => p.Id)
               .HasColumnName("playlist_id");
@@ -101,12 +95,12 @@ namespace Phc.Data
               .Property(p => p.AddedOn)
               .HasColumnName("added_on");
 
-
             modelBuilder.Entity<Playlist>()
               .ToTable("playlist");
+        }
 
-            // configure the join entity for playlist and album
-
+        void ConfigurePlaylistAlbumJoin(ModelBuilder modelBuilder)
+        {
             modelBuilder.Entity<Playlist>()
               .HasMany(p => p.Albums)
               .WithMany(a => a.Playlists)
@@ -118,8 +112,10 @@ namespace Phc.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            SetBandColumnNames(modelBuilder);
-            //SetBandTypes(modelBuilder);
+            MapBandColumns(modelBuilder);
+            MapAlbumColumns(modelBuilder);
+            MapPlaylistColumns(modelBuilder);
+            ConfigurePlaylistAlbumJoin(modelBuilder);
         }
     }
 }

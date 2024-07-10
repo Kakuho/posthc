@@ -50,8 +50,14 @@ namespace Phc.Service
             return saveBand;
         }
 
-        public Band AddBand(BandDto band)
+        public async Task<Band> AddBand(BandDto band)
         {
+            // check if the band is the same
+            int count = await _context.Bands.CountAsync(b => b.Name == 
+                band.Name);
+            if(count > 0){
+              return null;
+            }
             Band saveBand = new Band()
             {
                 Id = 0, // this does not matter
@@ -67,6 +73,7 @@ namespace Phc.Service
 
         public async Task<bool> DeleteBand(string name)
         {
+
             Band band = await _context.Bands.FirstAsync(b => b.Name == name);
             if (band is null)
             {

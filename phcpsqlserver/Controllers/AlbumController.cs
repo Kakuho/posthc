@@ -2,13 +2,15 @@ using Microsoft.AspNetCore.Mvc;
 using Phc.Data.Dto;
 using Phc.Data;
 using Phc.Service.Interface;
+using Phc.Exceptions;
 
-namespace Phc.Controllers
+namespace Phc.Controllers 
 {
     [Route("api/[controller]")]
     [ApiController]
     public class AlbumsController : ControllerBase
     {
+        // Controller for Albums
         private readonly PhcContext _context;
         private readonly IAlbumService _albumservice;
 
@@ -18,69 +20,77 @@ namespace Phc.Controllers
             _albumservice = albumservice;
         }
 
-        // probably make this async
         [HttpGet()]
-        public async Task<ActionResult<List<Album>>> GetAlbums(string? bandname)
+        public async Task<ActionResult<List<AlbumResponseDto>>> GetAlbums(string? bandname)
         {
-            List<Album> albumlist;
-            if (bandname is not null)
-            {
-              albumlist = await _albumservice.GetAlbumsFromBand(bandname);
+            // this controller action allows querying from a band
+            if(bandname is not null){
+                try 
+                {
+                    List<AlbumResponseDto> albums = await _albumservice.GetAlbumsFromBand(bandname);
+                    return albums.Count == 0 ? NoContent() : Ok(albums);
+                }
+                catch(BandNotFoundException e){
+                    return new JsonResult(new ErrorDto(){StatusCode = 404, Error = e.Message}){StatusCode = 404};
+                }
             }
-            else
-            {
-              albumlist = await _albumservice.GetAllAlbums();
-            }
-            if (albumlist is not null)
-            {
+            else{
+                // no query from bandname
+                List<AlbumResponseDto> albumlist = await _albumservice.GetAllAlbums();
                 return Ok(albumlist);
-            }
-            else
-            {
-                return new BadRequestResult();
             }
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Album>> GetAlbumById(long id)
+        public async Task<ActionResult<AlbumResponseDto>> GetAlbumById(long id)
         {
-            Album a = await _albumservice.GetAlbumByIdAsync(id);
-            if (a is null)
-            {
-                return new BadRequestResult();
-            }
-            else
-            {
+            try{
+                AlbumResponseDto a = await _albumservice.GetAlbumByIdAsync(id);
                 return Ok(a);
+            }
+            catch(AlbumNotFoundException e){
+                return new JsonResult(new ErrorDto(){StatusCode = 404, Error = e.Message}){StatusCode = 404};
             }
         }
 
         [HttpPost]
-        public async Task<ActionResult<Album>> PostAlbum(AlbumDto album)
+        public async Task<ActionResult<AlbumResponseDto>> PostAlbum(AlbumInputDto album)
         {
-            Album saved = await _albumservice.AddAlbum(album);
-            return new CreatedAtActionResult(nameof(PostAlbum), "Albums", new { id = saved.Id }, saved);
+            try{
+                AlbumResponseDto payload = await _albumservice.AddAlbum(album);
+                return Ok(payload);
+            }
+            catch(BandNotFoundException e){
+                return new JsonResult(new ErrorDto(){StatusCode = 404, Error = e.Message}){StatusCode = 404};
+            }
+            catch(AlbumExistsException e){
+                return new JsonResult(new ErrorDto(){StatusCode = 400, Error = e.Message}){StatusCode = 400};
+            }
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult<bool>> DeleteAlbum(string albumname)
+        public async Task<IActionResult> DeleteAlbum(int id)
         {
-            bool deleted = await _albumservice.DeleteAlbum(albumname);
-            if (deleted)
-            {
-                return Ok(true);
+            try{
+                bool deleted = await _albumservice.DeleteAlbum(id);
+                string message = $"album with id {id} successfully deleted";
+                return Ok(message);
             }
-            else
-            {
-                return Ok(false);
+            catch(AlbumNotFoundException e){
+                return new JsonResult(new ErrorDto(){StatusCode = 404, Error = e.Message}){StatusCode = 404};
             }
         }
 
         [HttpPut("{id}")]
-        public ActionResult<string> PutAlbum(int id)
+        public async Task<IActionResult> PutAlbum(int id, [FromBody] AlbumInputDto album)
         {
-          return Ok("I Aint Implemented yet!");
+            try{
+                await _albumservice.UpdateAlbum(id, album);
+                return Ok();
+            }
+            catch(BandNotFoundException e){
+                return new JsonResult(new ErrorDto(){StatusCode = 404, Error = e.Message}){StatusCode = 404};
+            }
         }
-
     }
 }
