@@ -4,8 +4,8 @@ namespace Phc.Data
 {
     public class Playlist
     {
-        public long Id { get; set; }
-        public string? Name { get; set; }
+        public required long Id { get; set; }
+        public required string Name { get; set; }
         public long? Runtime { get; set; } // in minutes
         [DataType(DataType.Date)]
         public DateTime AddedOn{get; set;}

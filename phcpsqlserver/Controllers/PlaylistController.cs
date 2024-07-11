@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Phc.Data.Dto;
 using Phc.Data;
 using Phc.Service.Interface;
+using Phc.Exceptions;
 
 namespace Phc.Controllers
 {
@@ -19,44 +20,60 @@ namespace Phc.Controllers
         }
 
         [HttpGet()]
-        public async Task<ActionResult<List<Playlist>>> GetAllPlaylists()
+        public async Task<ActionResult<List<PlaylistResponseDto>>> GetAllPlaylists()
         {
-          List<Playlist> pls = await _playlistservice.GetAllPlaylists();
-          return Ok(pls);
+          List<PlaylistResponseDto> payload = await _playlistservice.GetAllPlaylistsAsync();
+          return Ok(payload);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Playlist>> GetPlaylistById(long id)
+        public async Task<ActionResult<PlaylistResponseDto>> GetPlaylistById(long id)
         {
-          Playlist pl = await _playlistservice.GetPlaylistByIdAsync(id);
-          if(pl is not null){
-            return Ok(pl);
-          }
-          else{
-            return new BadRequestResult();
-          }
+            try{
+                PlaylistResponseDto payload = await _playlistservice.GetPlaylistByIdAsync(id);
+                return payload;
+            }
+            catch(PlaylistNotFoundException e){
+                return new JsonResult(new ErrorDto(){StatusCode = 404, Error = e.Message}){StatusCode = 404};
+            }
         }
 
-
-        // probably make this async
         [HttpPost]
-        public ActionResult<Playlist> PostPlaylist()
+        public async Task<ActionResult<PlaylistResponseDto>> PostPlaylist(PlaylistInputDto input)
         {
-           throw new InvalidOperationException("post playlist is not implemented");
+            try{
+                PlaylistResponseDto payload = await _playlistservice.AddPlaylist(input);
+                return payload;
+            }
+            catch(PlaylistExistsException e){
+                return new JsonResult(new ErrorDto(){StatusCode = 400, Error = e.Message}){StatusCode = 400};
+            }
         }
 
-        // probably make this async
         [HttpDelete("{id}")]
-        public ActionResult<bool> DeletePlaylist(int id)
+        public async Task<IActionResult> DeletePlaylist(long id)
         {
-           throw new InvalidOperationException("delete playlist/{id} is not implemented");
+            try{
+                await _playlistservice.DeletePlaylist(id);
+                return Ok();
+            }
+            catch(PlaylistNotFoundException e){
+                return new JsonResult(new ErrorDto(){StatusCode = 404, Error = e.Message}){StatusCode = 404};
+            }
+            
         }
 
         // probably make this async
         [HttpPut("{id}")]
-        public ActionResult<string> PutAlbum(int id)
+        public async Task<ActionResult<PlaylistResponseDto>> PutAlbum(int id, [FromBody] PlaylistInputDto input)
         {
-           throw new InvalidOperationException("put playlist/{id} is not implemented");
+            try{
+                PlaylistResponseDto payload = await _playlistservice.UpdatePlaylist(id, input);
+                return Ok();
+            }
+            catch(PlaylistNotFoundException e){
+                return new JsonResult(new ErrorDto(){StatusCode = 404, Error = e.Message}){StatusCode = 404};
+            }
         }
     }
 }

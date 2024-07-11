@@ -50,6 +50,7 @@ namespace Phc.Controllers
             }
             catch(AlbumNotFoundException e){
                 return new JsonResult(new ErrorDto(){StatusCode = 404, Error = e.Message}){StatusCode = 404};
+                
             }
         }
 
@@ -92,5 +93,6 @@ namespace Phc.Controllers
                 return new JsonResult(new ErrorDto(){StatusCode = 404, Error = e.Message}){StatusCode = 404};
             }
         }
+        
     }
 }

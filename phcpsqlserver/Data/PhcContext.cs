@@ -8,6 +8,8 @@ namespace Phc.Data
         public DbSet<Band> Bands { get; set; }
         public DbSet<Album> Albums { get; set; }
         public DbSet<Playlist> Playlists { get; set; }
+        public DbSet<JoinPlaylistAlbum> PlaylistsAlbum { get; set; }
+        
 
         public PhcContext(DbContextOptions<PhcContext> options)
             : base(options)
@@ -28,6 +30,10 @@ namespace Phc.Data
             modelBuilder.Entity<Band>()
               .Property(b => b.Name)
               .HasColumnName("name");
+            
+            modelBuilder.Entity<Band>()
+              .Property(b => b.Genre)
+              .HasColumnName("genre");
 
             modelBuilder.Entity<Band>()
               .Property(b => b.Formed)
@@ -38,8 +44,8 @@ namespace Phc.Data
               .HasColumnName("added_on");
 
             modelBuilder.Entity<Band>()
-              .Property(b => b.LastModified)
-              .HasColumnName("last_modified");
+              .Property(b => b.LastUpdated)
+              .HasColumnName("last_updated");
 
             modelBuilder.Entity<Band>()
               .ToTable("bands");
@@ -94,7 +100,8 @@ namespace Phc.Data
             modelBuilder.Entity<Playlist>()
               .Property(p => p.AddedOn)
               .HasColumnName("added_on");
-
+            
+            
             modelBuilder.Entity<Playlist>()
               .ToTable("playlist");
         }
@@ -107,7 +114,15 @@ namespace Phc.Data
               .UsingEntity<JoinPlaylistAlbum>();
 
             modelBuilder.Entity<JoinPlaylistAlbum>()
-              .ToTable("playlist_album_mapping");
+              .Property(j => j.PlaylistId)
+              .HasColumnName("playlistid");
+
+            modelBuilder.Entity<JoinPlaylistAlbum>()
+              .Property(j => j.AlbumId)
+              .HasColumnName("albumid");
+
+            modelBuilder.Entity<JoinPlaylistAlbum>()
+              .ToTable("playlist_album");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

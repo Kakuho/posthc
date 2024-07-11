@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Phc.Data.Dto;
 using Phc.Data;
 using Phc.Service.Interface;
+using Phc.Exceptions;
 
 namespace Phc.Controllers
 {
@@ -21,65 +22,59 @@ namespace Phc.Controllers
         [HttpGet()]
         public async Task<ActionResult<List<Band>>> GetAllBands()
         {
-            List<Band> allbands = await _bandservice.GetAllBands();
-            if (allbands is null)
-            {
-                return new BadRequestResult();
-            }
-            else
-            {
-                return Ok(allbands);
-            }
+            List<BandResponseDto> allbands = await _bandservice.GetAllBandsAsync();
+            return Ok(allbands);
         }
 
-        /*
         [HttpGet("{id}")]
-        public async Task<ActionResult<Band>> GetBandById(long id)
+        public async Task<ActionResult<BandResponseDto>> GetBandById(long id)
         {
-            Band b = await _bandservice.GetBandByIdAsync(id);
-            if (b is null)
-            {
-                return new BadRequestResult();
-            }
-            else
-            {
+            try{
+                BandResponseDto b = await _bandservice.GetBandByIdAsync(id);
                 return Ok(b);
             }
-        }
-        */
-
-        [HttpGet("{BandName}")]
-        public async Task<ActionResult<Band>> GetBandById(string BandName)
-        {
-            Band b = await _bandservice.GetBandByNameAsync(BandName);
-            if (b is null)
-            {
-                return new BadRequestResult();
-            }
-            else
-            {
-                return Ok(b);
+            catch(BandNotFoundException e){
+                
+                return new JsonResult(new ErrorDto(){StatusCode = 404, Error = e.Message}){StatusCode = 404};
             }
         }
 
         [HttpPost]
-        public ActionResult<Band> PostBand(BandDto band)
+        public async Task<ActionResult<BandResponseDto>> PostBand(BandInputDto band)
         {
-            Band saved = _bandservice.AddBand(band);
-            return new CreatedAtActionResult(nameof(PostBand), "Bands", new { id = saved.Id }, saved);
+            try{
+                BandResponseDto saved = await _bandservice.AddBandAsync(band);
+                return new CreatedAtActionResult(nameof(PostBand), "Bands", new { id = saved.Id }, saved);
+            }
+            catch(BandExistsException e){
+                return new JsonResult(new ErrorDto(){StatusCode = 400, Error = e.Message}){StatusCode = 400};
+            }
         }
 
-        [HttpDelete]
-        public async Task<ActionResult<bool>> PostBand(string bandname)
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteBand(int id)
         {
-            bool deleted = await _bandservice.DeleteBand(bandname);
-            if (deleted)
-            {
-                return Ok(true);
+            try{
+                await _bandservice.DeleteBandByIdAsync(id);
+                return Ok($"band with id {id} successfully deleted");
             }
-            else
-            {
-                return Ok(false);
+            catch(BandNotFoundException e){
+                return new JsonResult(new ErrorDto(){StatusCode = 404, Error = e.Message}){StatusCode = 404};
+            }
+            catch(BandNonEmptyException e){
+                return new JsonResult(new ErrorDto(){StatusCode = 400, Error = e.Message}){StatusCode = 400};
+            }
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutBand(int id, [FromBody] BandInputDto album)
+        {
+            try{
+                await _bandservice.UpdateBandAsync(id, album);
+                return Ok();
+            }
+            catch(BandNotFoundException e){
+                return new JsonResult(new ErrorDto(){StatusCode = 404, Error = e.Message}){StatusCode = 404};
             }
         }
     }

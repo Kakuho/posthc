@@ -138,7 +138,7 @@ namespace Phc.Service
             }
             // passes tests, so we populate the db
             string sanitisedName = StringSanitiser.Transform(album.BandName);
-            Band band = await _bandservice.GetBandByNameAsync(sanitisedName);
+            Band band = await _context.Bands.SingleAsync(b => b.Name == sanitisedName);
             Album saveAlbum = new Album()
             {
                 Name = StringSanitiser.Transform(album.Name),

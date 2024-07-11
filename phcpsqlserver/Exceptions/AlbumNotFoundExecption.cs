@@ -14,6 +14,7 @@ namespace Phc.Exceptions{
             base(message, inner)
         {
         }
+        
     }
     
 }

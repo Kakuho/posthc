@@ -5,11 +5,10 @@ namespace Phc.Service.Interface
 {
     public interface IPlaylistService
     {
-        public Task<Playlist> GetPlaylistByIdAsync(long id);
-        public Task<Playlist> GetPlaylistByNameAsync(string name);
-        public Task<List<Playlist>> GetAllPlaylists();
-        public Playlist AddPlaylist(Playlist playlist);
-       //public Playlist AddPlaylist(PlaylistDto pl);
-        public Task<bool> DeletePlaylist(string name);
+        public Task<List<PlaylistResponseDto>> GetAllPlaylistsAsync();
+        public Task<PlaylistResponseDto> GetPlaylistByIdAsync(long id);
+        public Task<PlaylistResponseDto> AddPlaylist(PlaylistInputDto playlist);
+        public Task DeletePlaylist(long id);
+        public Task<PlaylistResponseDto> UpdatePlaylist(long id, PlaylistInputDto playlist);
     }
 }
